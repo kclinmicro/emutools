@@ -30,28 +30,65 @@ def main():
 
         colnames_translated = df_reads.columns
 
-        #import ipdb; ipdb.set_trace()
-        for colname in colnames_translated:
+        handles, labels = None, None
+        # import ipdb; ipdb.set_trace()
+        selected_cols = colnames_translated[0:10]
+        n_cols = len(selected_cols)
+        subplot_height = 2
+        fig, axes = plt.subplots(
+            nrows=n_cols,
+            figsize=(12, subplot_height * n_cols),
+            squeeze=False,
+        )
+        base_title = (
+            abundance_fname.replace("_downsampled.fastq_rel-abundance.tsv", "") + ": "
+        )
+        for i, colname in enumerate(selected_cols):
+            ax = axes[i, 0]
+
             # Keep only reads which has some abundance at all for this taxa
             df_reads_for_taxa = df_reads[df_reads[str(colname)].notna()]
 
-            fig = plt.figure(figsize=(8, 5))
-            #fig = sns.histplot(
-            #        df_reads_for_taxa.iloc[:, 0:15], bins=20, fill=True, edgecolor="white", linewidth=1,
-            #)
-            fig = sns.kdeplot(
-                    df_reads_for_taxa.iloc[:, 0:10], fill=True
+            sns.histplot(
+                df_reads_for_taxa.iloc[:, 0:15],
+                bins=10,
+                fill=True,
+                edgecolor="white",
+                linewidth=1,
+                ax=ax,
             )
-            fig.set_xlim(0, 1.1)
+            # sns.kdeplot(
+            #        df_reads_for_taxa.iloc[:, 0:10], fill=True
+            # )
+            ax.set_xlim(0, 1.1)
+            title = base_title + colname
+            ax.set_title(f"{title}")
+            ax.set_xlabel("Assignment probability", fontsize=8)
+            ax.set_ylabel("Number of reads per bin", fontsize=8)
 
-            title = abundance_fname.replace("_downsampled.fastq_rel-abundance.tsv", "") + ": " + colname
-            plt.title(f"{title}")
+            # Capture legend handles and labels from first plot only
+            if i == 0:
+                handles, labels = ax.get_legend_handles_labels()
 
-            colname_path = colname.replace(" ", "_")
-            plot_path = f"{readassmt_path}_{colname_path}.png"
-            plt.savefig(plot_path)
+            # Remove individual legends from each subplot
+            if ax.get_legend() is not None:
+                ax.get_legend().remove()
 
-            plt.clf()
+        # Add single legend outside the plots (to the right)
+        fig.legend(
+            handles,
+            labels,
+            loc="center right",
+            bbox_to_anchor=(1.0, 0.5),
+            fontsize=9,
+            frameon=True,
+        )
+
+        plt.tight_layout(rect=[0, 0, 0.85, 0.99])
+
+        plot_path = f"{readassmt_path}_hist.png"
+        plt.savefig(plot_path)
+        plt.close()
 
 
 def translate_taxids(df, taxonomy_path="taxonomy.tsv"):
