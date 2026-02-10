@@ -34,7 +34,7 @@ def main():
         # import ipdb; ipdb.set_trace()
         selected_cols = colnames_translated[0:10]
         n_cols = len(selected_cols)
-        subplot_height = 2
+        subplot_height = 1.37
         fig, axes = plt.subplots(
             nrows=n_cols,
             figsize=(12, subplot_height * n_cols),
@@ -47,16 +47,22 @@ def main():
             ax = axes[i, 0]
 
             # Keep only reads which has some abundance at all for this taxa
-            df_reads_for_taxa = df_reads[df_reads[str(colname)].notna()]
+            df_reads_for_taxa = df_reads[df_reads[colname].notna()]
 
-            sns.histplot(
-                df_reads_for_taxa.iloc[:, 0:15],
-                bins=10,
-                fill=True,
-                edgecolor="white",
-                linewidth=1,
-                ax=ax,
-            )
+            for col in df_reads_for_taxa[selected_cols].columns:
+                sns.histplot(
+                    data=df_reads_for_taxa[selected_cols],
+                    x=col,
+                    bins=10,
+                    binrange=(0,1),
+                    fill=True,
+                    edgecolor="white",
+                    linewidth=1,
+                    ax=ax,
+                    label=col,
+                    alpha=0.67,
+                    legend=True,
+                )
             # sns.kdeplot(
             #        df_reads_for_taxa.iloc[:, 0:10], fill=True
             # )
@@ -71,23 +77,24 @@ def main():
                 handles, labels = ax.get_legend_handles_labels()
 
             # Remove individual legends from each subplot
-            if ax.get_legend() is not None:
-                ax.get_legend().remove()
+            legend = ax.get_legend()
+            if legend is not None:
+                legend.remove()
 
         # Add single legend outside the plots (to the right)
         fig.legend(
             handles,
             labels,
-            loc="center right",
+            loc="upper right",
             bbox_to_anchor=(1.0, 0.5),
             fontsize=9,
             frameon=True,
         )
 
-        plt.tight_layout(rect=[0, 0, 0.85, 0.99])
+        plt.tight_layout(rect=[0, 0, 0.7, 0.99])
 
-        plot_path = f"{readassmt_path}_hist.png"
-        plt.savefig(plot_path)
+        plt.savefig(f"{readassmt_path}_hist.png")
+        plt.savefig(f"{readassmt_path}_hist.pdf")
         plt.close()
 
 
