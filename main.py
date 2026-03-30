@@ -5,6 +5,7 @@ import math
 import matplotlib.pyplot as plt
 import pandas as pd
 import pysam
+import os
 from pathlib import Path
 import seaborn as sns
 import statistics
@@ -13,6 +14,7 @@ from argparse import ArgumentParser
 
 argp = ArgumentParser()
 argp.add_argument("--use-alignment-score", action="store_true", default=False)
+argp.add_argument("--plot", action="store_true", default=False)
 args = argp.parse_args()
 
 
@@ -72,6 +74,7 @@ def main():
                 alns_all[taxid].append(aln)
 
             aln_infos = []
+            i = 1
             for taxid in colnames_taxids:
                 if taxid in alns_all:
                     alns = alns_all[taxid]
@@ -80,12 +83,13 @@ def main():
                     median_id = statistics.median(identities)
                     median_cov = statistics.median(coverages)
                     abundance = float(df_abundance[df_abundance["tax_id"] == taxid]["abundance"].values[0])
+                    taxon = taxtr.taxid_to_label(taxid)
                     aln_infos.append(
                         {
                             "sample": sample_name,
                             "abundance": abundance,
                             "taxid": taxid,
-                            "taxon": taxtr.taxid_to_label(taxid),
+                            "taxon": taxon,
                             "aligned_reads": alns_cnt,
                             "median_identity": median_id,
                             "median_coverage": median_cov,
@@ -93,6 +97,46 @@ def main():
                             "coverages": coverages,
                         }
                     )
+                    if args.plot:
+                        _, axes = plt.subplots(
+                            nrows=2,
+                            figsize=(12, 7),
+                            squeeze=False,
+                        )
+                        ax = sns.histplot(
+                            data=identities,
+                            bins=100,
+                            binrange=(0, 1),
+                            fill=True,
+                            edgecolor="white",
+                            linewidth=1,
+                            legend=True,
+                            ax=axes[0,0]
+                        )
+                        title = f"Med %Id | Sp. {i}: {sample_name} - {taxon} ({abundance:.3f})"
+                        ax.set_title(title)
+                        ax = sns.histplot(
+                            data=coverages,
+                            bins=100,
+                            binrange=(0, 1),
+                            fill=True,
+                            edgecolor="white",
+                            linewidth=1,
+                            legend=True,
+                            ax=axes[1,0]
+                        )
+                        title = f"Med. cov | Sp. {i}: {sample_name} - {taxon} ({abundance:.3f})"
+                        ax.set_title(title)
+
+                        outdir=f"plots/{sample_name}"
+                        os.makedirs(outdir, exist_ok=True)
+
+                        png_path = f"{outdir}/{sample_name}-{i:03d}-{taxon.replace(' ', '_')}.png"
+                        print(f"Saving raw alignment plot to {png_path} ...")
+                        plt.savefig(png_path)
+
+                        i += 1
+                        plt.close()
 
             for ai in aln_infos:
                 print(f"{ai['sample']}\t{ai['taxid']}\t{ai['abundance']:.5f}\t{ai['aligned_reads']}\t{ai['median_identity']:.3f}\t{ai['median_coverage']:.3f}\t{ai['taxon']}")
@@ -164,10 +208,6 @@ def main():
         png_path = f"{readassmt_path}_hist.png"
         print(f"Saving figure to {png_path} ...")
         plt.savefig(png_path)
-
-        pdf_path = f"{readassmt_path}_hist.pdf"
-        print(f"Saving figure to {pdf_path} ...")
-        plt.savefig(pdf_path)
 
         plt.close()
 
