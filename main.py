@@ -180,8 +180,8 @@ def main():
             #        df_reads_for_taxa.iloc[:, 0:10], fill=True
             # )
             ax.set_xlim(0, 1.1)
-            title = colname
-            ax.set_title(f"{title}")
+            taxon = taxtr.taxid_to_label(colname)
+            ax.set_title(f"{taxon}")
             ax.set_xlabel("Assignment probability", fontsize=8)
             ax.set_ylabel("Number of reads per bin", fontsize=8)
 
