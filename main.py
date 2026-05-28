@@ -13,6 +13,7 @@ import statistics
 from argparse import ArgumentParser
 
 argp = ArgumentParser()
+argp.add_argument("--input-dir", type=str, required=True, help="Path to the input directory containing results")
 argp.add_argument("--use-alignment-score", action="store_true", default=False)
 argp.add_argument("--plot", action="store_true", default=False)
 args = argp.parse_args()
@@ -22,7 +23,7 @@ def main():
     taxtr = TaxTranslator()
 
     for abundance_path_str in glob(
-        "data/16s_ont_260306_testrun_offline-20260306-112611/results/*rel-abundance.tsv"
+        f"{args.input_dir}/results/*rel-abundance.tsv"
     ):
         abundance_path = Path(abundance_path_str)
         abundance_fname = abundance_path.name
