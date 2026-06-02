@@ -26,6 +26,9 @@ TRANA/Emu.
 
 ## Usage: Aligning no-hits to the human reference genome
 
+- **Note:** This command currently depends on the
+  [SciCommander](https://deepwiki.com/samuell/scicommander) tool to be installed.
+
 ```
 pixi shell
 ./align-nohits-to-human.sh <emu-sam-file>
