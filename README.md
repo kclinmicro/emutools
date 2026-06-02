@@ -23,3 +23,10 @@ python plot_probdist.py --input-dir <path-to-trana-output-dir>
 
 Results will be created as .png plots alongside the `.tsv` output files from
 TRANA/Emu.
+
+## Usage: Aligning no-hits to the human reference genome
+
+```
+pixi shell
+./align-nohits-to-human.sh <emu-sam-file>
+```
