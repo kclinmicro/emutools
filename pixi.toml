@@ -1,0 +1,12 @@
+[workspace]
+authors = ["Samuel Lampa <samuel.lampa@scilifelab.se>"]
+channels = ["conda-forge", "bioconda"]
+name = "emutools"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.12.*"
+samtools = ">=1.23.1,<2"
