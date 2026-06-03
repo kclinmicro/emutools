@@ -20,6 +20,7 @@ echo "--------------------------------------------------------------------------
 echo "-> Download human genome ..."
 echo "--------------------------------------------------------------------------------";
 sci run "curl https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/914/755/GCF_009914755.1_T2T-CHM13v2.0/${reffile}.gz > ${reffile}.gz"
+
 echo "--------------------------------------------------------------------------------";
 echo "-> Unpack genome ..."
 echo "--------------------------------------------------------------------------------";
@@ -42,6 +43,7 @@ echo "-> Sorting bam ..."
 echo "--------------------------------------------------------------------------------";
 humalnbamsrt=${fqfile%.fq}.aln_human.sorted.bam
 sci run "samtools sort ${humalnbam} > ${humalnbamsrt}"
+
 echo "--------------------------------------------------------------------------------";
 echo "-> Indexing bam ..."
 echo "--------------------------------------------------------------------------------";
@@ -51,11 +53,13 @@ sci run "samtools index ${humalnbamsrt}"
 echo "--------------------------------------------------------------------------------";
 echo "-> Determining most common chromosome location ..."
 echo "--------------------------------------------------------------------------------";
+
 # Determine the most commonly occuring chromosome / location
 genomeloc=$(samtools view ${humalnbamsrt} | awk -F"\t" '{ print $3 ":" $4 }' | sort | uniq -c | sort -nr | head -n 1 | awk '{ print $2 }')
+echo "Most common location: ${genomeloc}"
+
 # Format it as a chromosome region for IGV
 genomereg=$(echo ${genomeloc} | awk -F: '{ print $1 ":" $2-100 "-" $2 + 1500 }')
-echo "Most common location: ${genomeloc}"
 
 echo "--------------------------------------------------------------------------------";
 echo "-> Plotting alignment..."
