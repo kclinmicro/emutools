@@ -49,12 +49,17 @@ humalnbamsrt=${fqfile%.fq}.aln_human.sorted.bam
 sci run "samtools index ${humalnbamsrt}"
 
 echo "--------------------------------------------------------------------------------";
-echo "-> Plotting alignment..."
+echo "-> Determining most common chromosome location ..."
 echo "--------------------------------------------------------------------------------";
-genomeloc=$(samtools view 1153813579M3_downsampled.fastq_emu_alignments.unalign.aln_human.sorted.bam | awk -F"\t" '{ print $3 ":" $4 }' | sort | uniq -c | sort -nr | head -n 1 | awk '{ print $2 }')
+# Determine the most commonly occuring chromosome / location
+genomeloc=$(samtools view ${humalnbamsrt} | awk -F"\t" '{ print $3 ":" $4 }' | sort | uniq -c | sort -nr | head -n 1 | awk '{ print $2 }')
+# Format it as a chromosome region for IGV
 genomereg=$(echo ${genomeloc} | awk -F: '{ print $1 ":" $2-100 "-" $2 + 1500 }')
 echo "Most common location: ${genomeloc}"
 
+echo "--------------------------------------------------------------------------------";
+echo "-> Plotting alignment..."
+echo "--------------------------------------------------------------------------------";
 igvscript=${humalnbamsrt%.bam}.igv
 plotfile=${humalnbamsrt%.bam}.igv.png
 cat << END > ${igvscript}
