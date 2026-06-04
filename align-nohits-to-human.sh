@@ -27,6 +27,11 @@ echo "--------------------------------------------------------------------------
 sci run "zcat ${reffile}.gz > ${reffile}"
 
 echo "--------------------------------------------------------------------------------";
+echo "-> Index reference genome ..."
+echo "--------------------------------------------------------------------------------";
+sci run "samtools faidx ${reffile} --fai-idx ${reffile}.fai"
+
+echo "--------------------------------------------------------------------------------";
 echo "-> Aligning nohits sequences in ${fqfile} to human genome ..."
 echo "--------------------------------------------------------------------------------";
 humalnsam=${fqfile%.fq}.aln_human.sam
@@ -48,7 +53,7 @@ echo "--------------------------------------------------------------------------
 echo "-> Indexing bam ..."
 echo "--------------------------------------------------------------------------------";
 humalnbamsrt=${fqfile%.fq}.aln_human.sorted.bam
-sci run "samtools index ${humalnbamsrt}"
+sci run "samtools index ${humalnbamsrt} -o ${humalnbamsrt}.bai"
 
 echo "--------------------------------------------------------------------------------";
 echo "-> Determining most common chromosome location ..."
